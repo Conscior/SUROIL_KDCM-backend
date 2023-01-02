@@ -1,5 +1,5 @@
 // const allowedOrigins = require("./allowedOrigins");
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",") || "";
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || "";
 
 console.log("allowedOrigins", allowedOrigins)
 
