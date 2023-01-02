@@ -3,29 +3,12 @@ const path = require("path");
 const Sequelize = require("sequelize");
 const process = require("process");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || "development";
-const config = require(__dirname + "/../config/dbConfig.js")[env];
+const node_env = process.env.NODE_ENV || "development";
+const dbParams =
+  process.env.DB_URL || require(__dirname + "/../config/dbConfig.js")[node_env];
 const db = {};
 
-// Import models
-// const User = require("./User");
-// const Product = require("./Product");
-// const Order = require("./Order");
-// const Order_Product = require("./Order_Product");
-
-// Sequelize logic
-
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(
-    config.database,
-    config.username,
-    config.password,
-    config
-  );
-}
+let sequelize = new Sequelize(dbParams); // Connect to databse either through an url or parameters
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
