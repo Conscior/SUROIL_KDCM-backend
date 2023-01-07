@@ -1,12 +1,12 @@
 require("dotenv").config();
 const path = require("path");
 const express = require("express");
-const app = express();
 const { logger, logEvent } = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+const helmet = require("helmet");
 
 const db = require("./models/index");
 const syncAssociation = require("./models/association");
@@ -25,11 +25,15 @@ try {
   console.log("Error while connecting to db");
 }
 
+// Initialize express app
+const app = express();
+
 // Middleware
 app.use(logger);
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
 
 app.use("/", express.static(path.join(__dirname, "public")));
 
@@ -40,6 +44,8 @@ app.use("/auth", require("./routes/auth.js"));
 app.use("/products", require("./routes/product.js"));
 app.use("/categories", require("./routes/category.js"));
 app.use("/orders", require("./routes/order.js"));
+app.use("/stores", require("./routes/store"));
+app.use("/contactFormEntries", require("./routes/contactFormEntry"));
 
 app.all("*", (req, res) => {
   res.status(404);

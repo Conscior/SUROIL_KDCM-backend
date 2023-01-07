@@ -3,8 +3,6 @@ const OrderLine = require("../models/OrderLine");
 const Product = require("../models/Product");
 const User = require("../models/User");
 
-const {} = require("./orderLinesController");
-
 const asyncHandler = require("express-async-handler");
 
 const getOrders = asyncHandler(async (req, res) => {
@@ -55,24 +53,35 @@ const createOrder = asyncHandler(async (req, res) => {
     status,
   });
 
+  if (!order) {
+    res.status(400).json({ message: "Problème lors de la creation du devis." });
+  }
+
   // Create the order lines
   for (let i = 0; i < order_lines.length; i++) {
-    const line = order_lines[i];
-    const product = await Product.findByPk(line.product_id);
+    const order_line = order_lines[i];
+    const product = await Product.findByPk(order_line.product_id);
 
     if (!product)
       return res
         .status(400)
-        .json({ message: "One of the products aren't available" });
+        .json({ message: "L'un des produits est indisponible." });
 
-    await OrderLine.create({
-      ...line, // Should set the product_id and product_quantity
+    const order_line_res = await OrderLine.create({
+      ...order_line, // Should set the product_id and product_quantity
       order_id: order.id,
       // product_price: product.price, // Get the price from the product object to ensure correct amount
-      // total: line.product_quantity * product.price, // Compute the total price to ensure correct amount
+      // total: order_line.product_quantity * product.price, // Compute the total price to ensure correct amount
     });
-    quantity += line.product_quantity;
-    // total += line.product_quantity * product.price;
+
+    if (!order_line_res) {
+      res
+        .status(400)
+        .json({ message: "Problème lors de la creation du devis." });
+    }
+
+    quantity += order_line.product_quantity;
+    // total += order_line.product_quantity * product.price;
   }
 
   // Update Order with the calculated total and quantity

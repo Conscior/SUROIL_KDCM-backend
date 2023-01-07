@@ -14,7 +14,7 @@ const login = asyncHandler(async (req, res) => {
   let foundUser = null;
   // Check if user exists & generate token
   try {
-    foundUser = await User.findOne({ where: { email } });
+    foundUser = await User.findOne({ where: { email, active: true } });
   } catch (error) {
     console.log("Login error: ", error);
   }
@@ -25,7 +25,8 @@ const login = asyncHandler(async (req, res) => {
 
   const match = await bcrypt.compare(password, foundUser.password);
 
-  if (!match) return res.status(401).json({ message: "Wrong email or password." });
+  if (!match)
+    return res.status(401).json({ message: "Wrong email or password." });
 
   // Create user obj with info to send
   const userInfo = {
@@ -34,7 +35,7 @@ const login = asyncHandler(async (req, res) => {
     username: foundUser.username,
     firstName: foundUser.firstName,
     lastName: foundUser.lastName,
-    roles: foundUser.roles
+    roles: foundUser.roles,
   };
 
   // Data to be signed through jwt
@@ -91,7 +92,7 @@ const refresh = (req, res) => {
         username: foundUser.username,
         firstName: foundUser.firstName,
         lastName: foundUser.lastName,
-        roles: foundUser.roles
+        roles: foundUser.roles,
       };
 
       const dataToSign = {
