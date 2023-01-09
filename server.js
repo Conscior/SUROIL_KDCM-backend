@@ -46,6 +46,10 @@ app.use("/categories", require("./routes/category.js"));
 app.use("/orders", require("./routes/order.js"));
 app.use("/stores", require("./routes/store"));
 app.use("/contactFormEntries", require("./routes/contactFormEntry"));
+app.use(
+  "/afterSaleServiceFormEntries",
+  require("./routes/afterSaleServiceFormEntry")
+);
 
 app.all("*", (req, res) => {
   res.status(404);

@@ -13,6 +13,7 @@ const Order = db.sequelize.define(
     },
     status: {
       type: DataTypes.STRING,
+      defaultValue: 'draft'
       // allowNull defaults to true
     },
   },

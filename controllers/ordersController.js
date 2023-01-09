@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const OrderLine = require("../models/OrderLine");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const Store = require("../models/Store");
 
 const asyncHandler = require("express-async-handler");
 
@@ -14,14 +15,15 @@ const getOrders = asyncHandler(async (req, res) => {
 });
 
 const getUserOrders = asyncHandler(async (req, res) => {
-  const { user_id } = req.params;
+  const { customer_id } = req.params;
   // if (!user_id) {
   //   res.status(400).json({ message: "" });
   // }
-  const user = User.findByPk(user_id);
-  if (!user) return res.status(400).json({ message: "User not found." });
+  const user = User.findByPk(customer_id);
+  if (!user)
+    return res.status(400).json({ message: "Utilisateur introuvable.." });
 
-  const orders = Order.findAll({ where: { customer_id: user_id } });
+  const orders = Order.findAll({ where: { customer_id: customer_id } });
   if (!orders || !orders.length)
     return res.status(400).json({ message: "No orders found." });
 
@@ -30,16 +32,24 @@ const getUserOrders = asyncHandler(async (req, res) => {
 });
 
 const createOrder = asyncHandler(async (req, res) => {
-  const { customer_id, order_lines, status } = req.body;
+  const { customer_id, order_lines, store_id, status } = req.body;
 
   // Check fields
   if (
     !customer_id ||
     !Array.isArray(order_lines) ||
     !order_lines.length ||
+    !store_id ||
     !status
   )
-    return res.status(400).json({ message: "All fields are required." });
+    return res.status(400).json({ message: "Tous les champs sont requis." });
+
+  const customer = User.findByPk(customer_id);
+  if (!customer)
+    return res.status(400).json({ message: "Utilisateur introuvable." });
+
+  const store = Store.findByPk(store_id);
+  if (!store) return res.status(400).json({ message: "Magasin introuvable." });
 
   // Used to compute the total price and quantity to ensure correct amount
   // let total = 0;
@@ -49,6 +59,7 @@ const createOrder = asyncHandler(async (req, res) => {
   const order = await Order.create({
     customer_id,
     quantity,
+    store_id,
     // total,
     status,
   });

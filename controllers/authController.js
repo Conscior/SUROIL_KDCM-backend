@@ -8,25 +8,20 @@ const login = asyncHandler(async (req, res) => {
 
   // Check for fields
   if (!email || !password) {
-    return res.status(400).json({ message: "All fields are required." });
+    return res.status(400).json({ message: "Tous les champs sont requis." });
   }
 
-  let foundUser = null;
-  // Check if user exists & generate token
-  try {
-    foundUser = await User.findOne({ where: { email, active: true } });
-  } catch (error) {
-    console.log("Login error: ", error);
-  }
+  // Check if user exists
+  const foundUser = await User.findOne({ where: { email, active: true } });
 
   if (!foundUser || !foundUser?.active) {
-    return res.status(401).json({ message: "Wrong email or password." });
+    return res.status(401).json({ message: "Mauvais email ou mot de passe." });
   }
 
   const match = await bcrypt.compare(password, foundUser.password);
 
   if (!match)
-    return res.status(401).json({ message: "Wrong email or password." });
+    return res.status(401).json({ message: "Mauvais email ou mot de passe." });
 
   // Create user obj with info to send
   const userInfo = {
@@ -68,11 +63,10 @@ const login = asyncHandler(async (req, res) => {
 
 const refresh = (req, res) => {
   const cookies = req.cookies;
-  console.log("cookies : ", cookies);
   if (!cookies?.jwt)
     return res
       .status(401)
-      .json({ message: "Unauthorized - (No cookie from client)" });
+      .json({ message: "Non autorisé - (No cookie from client)" });
 
   const refreshToken = cookies.jwt;
 
@@ -80,11 +74,11 @@ const refresh = (req, res) => {
     refreshToken,
     process.env.REFRESH_TOKEN_SECRET,
     asyncHandler(async (err, decoded) => {
-      if (err) return res.status(403).json({ message: "Forbiden." });
+      if (err) return res.status(403).json({ message: "Non autorisé." });
 
-      const foundUser = await User.findOne({ email: decoded.email });
+      const foundUser = await User.findOne({ where: { email: decoded.email } });
 
-      if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
+      if (!foundUser) return res.status(401).json({ message: "Non autorisé" });
 
       const userInfo = {
         id: foundUser.id,

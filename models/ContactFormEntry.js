@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const db = require("./index");
 
-const ContactFormEntries = db.sequelize.define(
-  "ContactFormEntries",
+const ContactFormEntry = db.sequelize.define(
+  "ContactFormEntry",
   {
     // customer_id : FK
     // store_id : FK
@@ -22,4 +22,4 @@ const ContactFormEntries = db.sequelize.define(
   }
 );
 
-module.exports = ContactFormEntries;
+module.exports = ContactFormEntry;
