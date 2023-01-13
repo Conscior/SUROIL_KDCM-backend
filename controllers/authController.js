@@ -23,31 +23,35 @@ const login = asyncHandler(async (req, res) => {
   if (!match)
     return res.status(401).json({ message: "Mauvais email ou mot de passe." });
 
-  // Create user obj with info to send
+  /*
+    Create object with user info
+    Will be sent in the response
+    Will be signed in the jwt token
+  */
   const userInfo = {
     id: foundUser.id,
     email: foundUser.email,
     username: foundUser.username,
-    firstName: foundUser.firstName,
-    lastName: foundUser.lastName,
-    roles: foundUser.roles,
-  };
-
-  // Data to be signed through jwt
-  const dataToSign = {
-    email: foundUser.email,
+    firstname: foundUser.firstname,
+    lastname: foundUser.lastname,
+    address: foundUser.address,
+    phone_number: foundUser.phone_number,
     roles: foundUser.roles,
   };
 
   //Create access token
-  const accessToken = jwt.sign(dataToSign, process.env.ACCESS_TOKEN_SECRET, {
+  const accessToken = jwt.sign({ userInfo }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "1d",
   });
 
   // Create refresh token
-  const refreshToken = jwt.sign(dataToSign, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "10d",
-  });
+  const refreshToken = jwt.sign(
+    { userInfo },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: "10d",
+    }
+  );
 
   // Create an httpOnly cookie to stock the refreshToken
   res.cookie("jwt", refreshToken, {
@@ -76,7 +80,9 @@ const refresh = (req, res) => {
     asyncHandler(async (err, decoded) => {
       if (err) return res.status(403).json({ message: "Non autorisé." });
 
-      const foundUser = await User.findOne({ where: { email: decoded.email } });
+      const foundUser = await User.findOne({
+        where: { email: decoded.userInfo.email },
+      });
 
       if (!foundUser) return res.status(401).json({ message: "Non autorisé" });
 
@@ -84,18 +90,15 @@ const refresh = (req, res) => {
         id: foundUser.id,
         email: foundUser.email,
         username: foundUser.username,
-        firstName: foundUser.firstName,
-        lastName: foundUser.lastName,
-        roles: foundUser.roles,
-      };
-
-      const dataToSign = {
-        email: foundUser.email,
+        firstname: foundUser.firstname,
+        lastname: foundUser.lastname,
+        address: foundUser.address,
+        phone_number: foundUser.phone_number,
         roles: foundUser.roles,
       };
 
       const accessToken = jwt.sign(
-        dataToSign,
+        { userInfo },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1d" }
       );

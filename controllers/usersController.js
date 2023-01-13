@@ -17,31 +17,29 @@ const getAllUsers = asyncHandler(async (req, res) => {
 //Create new user
 // @access Private
 const createNewUser = asyncHandler(async (req, res) => {
-  const { userName, email, password, roles } = req.body;
+  const { username, email, password, roles } = req.body;
 
   //confirm data
   if (
-    !userName ||
+    !username ||
     !email ||
     !password ||
     !Array.isArray(roles)
     // !roles.length
-  ) {
-    return res.status(400).json({ message: "All fields are required." });
-  }
+  )
+    return res.status(400).json({ message: "Tous les champs sont requis." });
 
   // Check for duplicate
   const duplicate = await User.findOne({ where: { email } }); //TODO check if this works
-  if (duplicate) {
-    return res.status(409).json({ message: "Duplicate email." });
-  }
+  if (duplicate)
+    return res.status(409).json({ message: "Email déjà utilisé." });
 
   // Hash the password
   const hashedPwd = await bcrypt.hash(password, 10); //salt rounds
 
   // Create user object
   const userObj = {
-    userName,
+    username,
     email,
     password: hashedPwd,
     roles: roles.length ? roles : ["Customer"],
@@ -50,52 +48,42 @@ const createNewUser = asyncHandler(async (req, res) => {
   // Create & store new user
   const user = await User.create(userObj);
   if (user) {
-    res.status(201).json({ message: `New user ${userName} created.` });
+    res
+      .status(201)
+      .json({ message: `Utilisateur ${username} créé avec succès.` });
   } else {
-    res.status(400).json({ message: "Invalid user data received." });
+    res.status(400).json({
+      message: "Une erreur est survenue lors de la création d'un utilisateur.",
+    });
   }
 });
 
 // Update a user
 // @access Private
 const updateUser = asyncHandler(async (req, res) => {
-  const { id, username, email, password, roles, active } = req.body;
+  const { id, firstname, lastname, address, phone_number } = req.body;
 
   // Confirm data
-  if (
-    !id ||
-    !username ||
-    !email ||
-    Array.isArray(!roles) ||
-    !roles.length ||
-    typeof active !== "boolean"
-  ) {
-    res.status(400).json({ message: "All fields are required." });
+  if (!id) res.status(400).json({ message: "Identifiant manquant." });
+
+  if (!firstname && !lastname && !address && !phone_number)
+    res.status(400).json({ message: "Aucun champ à mettre à jour." });
+
+  const user = await User.findByPk(id);
+  if (!user)
+    return res.status(404).json({ message: "Utilisateur introuvable." });
+
+  try {
+    await user.update({
+      firstname,
+      lastname,
+      address,
+      phone_number,
+    });
+    res.json({ message: `User ${updateUser.username} updated.` });
+  } catch (error) {
+    res.status(404).json({ message: "Problème lors de la mises à jour des champs." });
   }
-
-  const user = await User.findById(id).exec();
-  if (!user) {
-    return res.status(404).json({ message: "User not found." });
-  }
-
-  //check for duplicate
-  const duplicate = await User.findOne({ username }).lean().exec();
-  if (duplicate && duplicate?._id.toString() !== id) {
-    return res.status(409).json({ message: "Duplicate username." }); // add email
-  }
-
-  user.username = username;
-  user.roles = roles;
-  user.active = active;
-
-  if (password) {
-    //hash password
-    user.password = await bcrypt.hash(password, 10);
-  }
-
-  const updateUser = await user.save();
-
-  res.json({ message: `User ${updateUser.username} updated.` });
 });
 
 //delete a user

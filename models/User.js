@@ -5,24 +5,30 @@ const User = db.sequelize.define(
   "User",
   {
     // Model attributes are defined here
-    userName: {
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    firstName: {
+    firstname: {
       type: DataTypes.STRING,
     },
-    lastName: {
+    lastname: {
+      type: DataTypes.STRING,
+    },
+    address: {
+      type: DataTypes.STRING,
+    },
+    phone_number: {
       type: DataTypes.STRING,
     },
     roles: {
