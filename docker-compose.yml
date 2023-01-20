@@ -1,0 +1,8 @@
+version: '1.0'
+services:
+  web: 
+    build: .
+    ports:
+      - "3500:3500"
+  db:
+    image: "postgres"

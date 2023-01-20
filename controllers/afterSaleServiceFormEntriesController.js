@@ -19,7 +19,6 @@ const createAfterSaleServiceFormEntry = asyncHandler(async (req, res) => {
     description,
   } = req.body;
 
-  console.log(req.body)
   if (is_pro) {
     if (
       !company_name ||

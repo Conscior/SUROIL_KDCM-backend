@@ -5,13 +5,19 @@ const ContactFormEntry = db.sequelize.define(
   "ContactFormEntry",
   {
     // customer_id : FK
-    // store_id : FK
-    customer_name: {
+    customer_firstname: {
+      type: DataTypes.TEXT,
+    },
+    customer_lastname: {
       type: DataTypes.TEXT,
     },
     customer_email: {
       type: DataTypes.STRING,
     },
+    email_header: {
+      type: DataTypes.STRING,
+    },
+    // store_id : FK
     message: {
       type: DataTypes.TEXT,
     },

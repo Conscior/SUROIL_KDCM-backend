@@ -4,13 +4,6 @@ const db = require("./index");
 const AfterSaleServiceFormEntry = db.sequelize.define(
   "AfterSaleServiceFormEntry",
   {
-    // customer_id : FK
-    customer_firstname: {
-      type: DataTypes.STRING,
-    },
-    customer_lastname: {
-      type: DataTypes.STRING,
-    },
     company_name: {
       type: DataTypes.STRING,
     },
@@ -18,6 +11,13 @@ const AfterSaleServiceFormEntry = db.sequelize.define(
       type: DataTypes.STRING,
     },
     company_nif: {
+      type: DataTypes.STRING,
+    },
+    // customer_id : FK
+    customer_firstname: {
+      type: DataTypes.STRING,
+    },
+    customer_lastname: {
       type: DataTypes.STRING,
     },
     customer_email: {
